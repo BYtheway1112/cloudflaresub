@@ -130,6 +130,16 @@ function parseRawLinks(input) {
   return result;
 }
 
+export function formatDisplayNodes(nodes = []) {
+  return nodes.map((node) => {
+    const match = String(node.name || '').match(
+      /^Cloudflare-VLESS-WS-TLS\s*\|\s*CF-Preferred\s*\|\s*(\d+)$/i,
+    );
+    if (!match) return node;
+    return { ...node, name: `gemini优化 ${match[1]}` };
+  });
+}
+
 function buildNodes(baseNodes, preferredEndpoints, options = {}) {
   const output = [];
   const prefix = (options.namePrefix || '').trim();
@@ -452,7 +462,9 @@ async function handleGenerate(request, env, url) {
     keepOriginalHost: body.keepOriginalHost !== false,
   };
 
-  const nodes = buildNodes(baseNodes, preferredEndpoints, options);
+  const nodes = formatDisplayNodes(
+    buildNodes(baseNodes, preferredEndpoints, options),
+  );
 
   const payload = {
     version: 1,
@@ -537,7 +549,7 @@ async function handleSub(url, env) {
   if (!raw) return text('not found', 404);
 
   const record = JSON.parse(raw);
-  const nodes = record.nodes || [];
+  const nodes = formatDisplayNodes(record.nodes || []);
   const target = (url.searchParams.get('target') || 'raw').toLowerCase();
 
   if (target === 'clash') {

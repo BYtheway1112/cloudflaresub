@@ -9,6 +9,7 @@ import {
   renderRawSubscription,
   renderSurgeSubscription,
 } from '../src/core.js';
+import { formatDisplayNodes } from '../src/worker.js';
 
 const vmess = 'vmess://ewogICJ2IjogIjIiLAogICJwcyI6ICJkZW1vLXdzLXRscyIsCiAgImFkZCI6ICJlZGdlLmV4YW1wbGUuY29tIiwKICAicG9ydCI6ICI0NDMiLAogICJpZCI6ICIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDEiLAogICJzY3kiOiAiYXV0byIsCiAgIm5ldCI6ICJ3cyIsCiAgInRscyI6ICJ0bHMiLAogICJwYXRoIjogIi93cyIsCiAgImhvc3QiOiAiZWRnZS5leGFtcGxlLmNvbSIsCiAgInNuaSI6ICJlZGdlLmV4YW1wbGUuY29tIiwKICAiZnAiOiAiY2hyb21lIiwKICAiYWxwbiI6ICJoMixodHRwLzEuMSIKfQ==';
 
@@ -25,6 +26,13 @@ assert.equal(expanded.nodes.length, 2);
 assert.equal(expanded.nodes[0].server, '104.16.1.2');
 assert.equal(expanded.nodes[0].hostHeader, 'edge.example.com');
 assert.equal(expanded.nodes[1].port, 2053);
+
+const displayNodes = formatDisplayNodes([
+  { name: 'Cloudflare-VLESS-WS-TLS | CF-Preferred | 1', server: '104.16.1.2' },
+  { name: '普通节点', server: 'example.com' },
+]);
+assert.equal(displayNodes[0].name, 'gemini优化 1');
+assert.equal(displayNodes[1].name, '普通节点');
 
 const raw = renderRawSubscription(expanded.nodes);
 assert.ok(raw.length > 10);
